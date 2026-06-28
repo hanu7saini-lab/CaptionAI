@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaptionAI - Content Assistant</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 700px; background: white; margin: 30px auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h1 { color: #1a73e8; margin-top: 0; }
+        label { font-weight: bold; display: block; margin: 15px 0 5px; }
+        textarea, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        textarea { resize: vertical; height: 100px; }
+        button { background-color: #1a73e8; color: white; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background-color: #1557b0; }
+        .output-box { background: #f8f9fa; border-left: 5px solid #1a73e8; padding: 20px; border-radius: 6px; margin-top: 20px; white-space: pre-wrap; display: none; }
+        .loading { display: none; color: #666; font-style: italic; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ CaptionAI Dashboard</h1>
+    <p>Generate optimized social media captions, hashtags, and CTAs in seconds.</p>
+    
+    <label for="description">What is your post about?</label>
+    <textarea id="description" placeholder="Describe your product, collection, or flash sale here..."></textarea>
+    
+    <label for="platform">Select Social Platform</label>
+    <select id="platform">
+        <option value="Instagram">Instagram (Visual & Emoji Rich)</option>
+        <option value="LinkedIn">LinkedIn (Professional & Narrative Driven)</option>
+        <option value="Twitter/X">Twitter/X (Short & Punchy)</option>
+    </select>
+    
+    <label for="tone">Select Content Tone</label>
+    <select id="tone">
+        <option value="Casual">Casual</option>
+        <option value="Professional">Professional</option>
+        <option value="Promotional">Promotional / Urgent</option>
+    </select>
+    
+    <button onclick="generateContent()">Generate Marketing Copy 🚀</button>
+    
+    <div id="loadingText" class="loading">Processing with LLaMA 3.3 Engine... Please wait...</div>
+    <div id="resultBox" class="output-box"></div>
+</div>
+
+<script>
+    async function generateContent() {
+        const description = document.getElementById('description').value;
+        const platform = document.getElementById('platform').value;
+        const tone = document.getElementById('tone').value;
+        const resultBox = document.getElementById('resultBox');
+        const loadingText = document.getElementById('loadingText');
+
+        if (!description.trim()) {
+            alert('Please provide a post description first!');
+            return;
+        }
+
+        // Show loading state, hide previous result window
+        loadingText.style.display = 'block';
+        resultBox.style.display = 'none';
+
+        try {
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description, platform, tone })
+            });
+            const data = await response.json();
+            
+            loadingText.style.display = 'none';
+            if (data.success) {
+                resultBox.innerText = data.result;
+                resultBox.style.display = 'block';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (error) {
+            loadingText.style.display = 'none';
+            alert('Failed to contact local Flask server.');
+        }
+    }
+</script>
+</body>
+</html>
